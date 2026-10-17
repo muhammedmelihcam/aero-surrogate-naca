@@ -1,0 +1,14 @@
+{
+  "CL": {
+    "regressor__C": 100,
+    "regressor__epsilon": 0.01,
+    "regressor__gamma": 1,
+    "cv_rmse": 0.037792193692170954
+  },
+  "logCD": {
+    "regressor__C": 1000,
+    "regressor__epsilon": 0.01,
+    "regressor__gamma": 1,
+    "cv_rmse": 0.034172298661000064
+  }
+}
