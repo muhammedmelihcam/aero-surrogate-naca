@@ -98,6 +98,16 @@ Uzunluk ölçeği bir duyarlılık ölçüsü ama tam olarak etki büyüklüğü
 
 ## Grafikler
 
+Tüm grafikler `src/grafikler.py` ile gerçek XFOIL verisinden ve kör test tahminlerinden üretiliyor.
+
+`results/tasarim_uzayi.png`: eğitim ve kör test kanatlarının tasarım uzayındaki yeri. Test kanatları aynı aralıkta ama eğitim noktalarıyla çakışmıyor.
+
+![Tasarım uzayı](results/tasarim_uzayi.png)
+
+`results/ornek_profiller.png`: kamberi ve kalınlığı en uçta olan birkaç test kanadı, `src/geometri.py` ile çizildi.
+
+![Örnek profiller](results/ornek_profiller.png)
+
 `results/cl_tahmin_gercek.png`: her yöntem için tahmin ve XFOIL CL değerleri, stall noktaları ayrı işaretli.
 
 ![CL tahmin ve gerçek](results/cl_tahmin_gercek.png)
@@ -110,12 +120,21 @@ Uzunluk ölçeği bir duyarlılık ölçüsü ama tam olarak etki büyüklüğü
 
 ![RMSE karşılaştırma](results/rmse_karsilastirma.png)
 
+`results/aciya_gore_hata.png`: her açı için kör test CL RMSE. GPR 12°'nin altında hemen her açıda en düşük hatayı veriyor. 15–18° arasında ise üç model içinde en yüksek hata onda, 18°'de 0,052'ye çıkıyor. GPR'ın stall RMSE değerinin SVR ve MLP'den kötü çıkmasının nedeni bu. Enterpolasyon bütün açılarda en yüksek hatayı veriyor.
+
+![Açıya göre hata](results/aciya_gore_hata.png)
+
+`results/surukleme_polari.png`: aynı test kanadı için CL–CD poları. Modeller en düşük sürüklemenin olduğu bölgeyi de stall'a doğru artışı da yakalıyor. Enterpolasyonun 0,5 civarındaki kayması zarf dışı en yakın komşu tahmininden geliyor.
+
+![Sürükleme poları](results/surukleme_polari.png)
+
 ## Sınırlamalar
 
 - XFOIL iki boyutlu, viskoz bir panel yöntemidir ve CFD'nin yerini tutmaz. Düşük Mach sayıları için geçerlidir. Bütün veri `mach = 0` ve `n_crit = 9` ile üretildi.
 - Stall bölgesinde XFOIL'in kendisi de daha az güvenilirdir (ayrılmış akış, yakınsama sorunları). Elenen noktaların çoğu da bu bölgede.
 - Modeller yalnızca örneklenen tasarım aralığında geçerlidir. Kör test kanatları aynı aralığın içinde. Bu bir ekstrapolasyon testi değil.
 - Veri sentetiktir, gerçek ölçüm içermez.
+- Kör test 25 kanattan oluşuyor. GPR ile MLP arasındaki fark küçük (CL RMSE 0,0248 ve 0,0268), farklı bir test kümesinde sıralama değişebilir.
 - Elenen noktalar boşluk olarak kalıyor. Yakınsamayan açıların yerine bir değer uydurulmuyor.
 
 ## Yeniden üretme
