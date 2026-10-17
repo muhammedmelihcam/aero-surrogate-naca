@@ -100,7 +100,7 @@ Uzunluk ölçeği bir duyarlılık ölçüsü ama tam olarak etki büyüklüğü
 
 ## Grafikler
 
-Tüm grafikler `src/grafikler.py` ile gerçek XFOIL verisinden ve kör test tahminlerinden üretiliyor.
+Tüm grafikler `src/grafikler.py` ile gerçek XFOIL verisinden ve kör test tahminlerinden üretiliyor. Grafik etiketleri İngilizce.
 
 `results/tasarim_uzayi.png`: eğitim ve kör test kanatlarının tasarım uzayındaki yeri. Test kanatları aynı aralıkta ama eğitim noktalarıyla çakışmıyor.
 

@@ -11,6 +11,8 @@ from hazirlik import SONUC, VERI
 
 YONTEMLER = ["Enterpolasyon", "GPR", "SVR", "MLP"]
 RENK = {"Enterpolasyon": "#8c8c8c", "GPR": "#1f77b4", "SVR": "#2ca02c", "MLP": "#d62728"}
+# Grafik etiketleri İngilizce, sütun adları kodla aynı kalıyor
+ETIKET = {"Enterpolasyon": "Interpolation", "GPR": "GPR", "SVR": "SVR", "MLP": "MLP"}
 
 
 def dagilim(df):
@@ -19,13 +21,13 @@ def dagilim(df):
     for ax, y in zip(eksenler, YONTEMLER):
         stall = df["alfa"] >= 12
         ax.scatter(df.loc[~stall, "CL"], df.loc[~stall, f"CL_{y}"], s=8, alpha=0.5,
-                   color=RENK[y], label="alfa < 12")
+                   color=RENK[y], label="alpha < 12")
         ax.scatter(df.loc[stall, "CL"], df.loc[stall, f"CL_{y}"], s=8, alpha=0.7,
-                   color="black", marker="x", label="alfa >= 12")
+                   color="black", marker="x", label="alpha >= 12")
         ax.plot(sinir, sinir, "k--", lw=0.8)
-        ax.set_title(y)
+        ax.set_title(ETIKET[y])
         ax.set_xlabel("XFOIL CL")
-    eksenler[0].set_ylabel("Tahmin CL")
+    eksenler[0].set_ylabel("Predicted CL")
     eksenler[0].legend(loc="upper left", fontsize=8)
     fig.tight_layout()
     fig.savefig(SONUC / "cl_tahmin_gercek.png", dpi=150)
@@ -40,9 +42,9 @@ def kanat_egrisi(df):
     fig, ax = plt.subplots(figsize=(7, 4.8))
     ax.plot(k["alfa"], k["CL"], "ko-", lw=2, ms=4, label="XFOIL")
     for y in YONTEMLER:
-        ax.plot(k["alfa"], k[f"CL_{y}"], "-", color=RENK[y], label=y)
+        ax.plot(k["alfa"], k[f"CL_{y}"], "-", color=RENK[y], label=ETIKET[y])
     ax.axvspan(12, k["alfa"].max(), color="0.9", zorder=0)
-    ax.set_xlabel("alfa [derece]")
+    ax.set_xlabel("alpha [deg]")
     ax.set_ylabel("CL")
     ax.set_title(f"{kimlik}: m={ilk.m:.3f}, p={ilk.p:.2f}, t={ilk.t:.3f}, Re={ilk.Re:.2e}")
     ax.legend()
@@ -60,9 +62,9 @@ def rmse_cubuk(tablo):
         ("CL_RMSE", "stall_CL_RMSE", "CL RMSE"),
         ("logCD_RMSE", "stall_logCD_RMSE", "log10(CD) RMSE"),
     ]):
-        ax.bar(x - 0.2, tablo[tum], 0.4, label="tüm test", color="#1f77b4")
-        ax.bar(x + 0.2, tablo[stall], 0.4, label="alfa >= 12", color="#ff7f0e")
-        ax.set_xticks(x, YONTEMLER)
+        ax.bar(x - 0.2, tablo[tum], 0.4, label="all test points", color="#1f77b4")
+        ax.bar(x + 0.2, tablo[stall], 0.4, label="alpha >= 12", color="#ff7f0e")
+        ax.set_xticks(x, [ETIKET[y] for y in YONTEMLER])
         ax.set_title(baslik)
         ax.grid(axis="y", alpha=0.3)
     eksenler[0].legend()
@@ -81,14 +83,14 @@ def tasarim_uzayi(egitim, test):
     ciftler = [("m", "p"), ("m", "t"), ("p", "t"), ("t", "Re")]
     fig, eksenler = plt.subplots(1, 4, figsize=(16, 3.8))
     for ax, (a, b) in zip(eksenler, ciftler):
-        ax.scatter(e[a], e[b], s=18, color="#1f77b4", label=f"eğitim ({len(e)})")
-        ax.scatter(t[a], t[b], s=30, color="#ff7f0e", marker="^", label=f"kör test ({len(t)})")
+        ax.scatter(e[a], e[b], s=18, color="#1f77b4", label=f"training ({len(e)})")
+        ax.scatter(t[a], t[b], s=30, color="#ff7f0e", marker="^", label=f"blind test ({len(t)})")
         ax.set_xlabel(a)
         ax.set_ylabel(b)
         if b == "Re":
             ax.set_yscale("log")
     eksenler[0].legend(fontsize=8)
-    fig.suptitle("Latin Hypercube tasarımı: kanat kombinasyonları")
+    fig.suptitle("Latin Hypercube design: airfoil combinations")
     fig.tight_layout()
     fig.savefig(SONUC / "tasarim_uzayi.png", dpi=150)
     plt.close(fig)
@@ -119,11 +121,11 @@ def aciya_gore_hata(df):
     for y in YONTEMLER:
         hata = (df[f"CL_{y}"] - df["CL"]) ** 2
         rmse = np.sqrt(hata.groupby(df["alfa"]).mean())
-        ax.plot(rmse.index, rmse.values, "o-", ms=3, color=RENK[y], label=y)
+        ax.plot(rmse.index, rmse.values, "o-", ms=3, color=RENK[y], label=ETIKET[y])
     ax.axvspan(12, df["alfa"].max(), color="0.9", zorder=0)
-    ax.set_xlabel("alfa [derece]")
+    ax.set_xlabel("alpha [deg]")
     ax.set_ylabel("CL RMSE")
-    ax.set_title("Kör testte açıya göre CL hatası")
+    ax.set_title("Blind test CL error by angle of attack")
     ax.legend()
     ax.grid(alpha=0.3)
     fig.tight_layout()
@@ -137,11 +139,11 @@ def surukleme_polari(df):
     fig, ax = plt.subplots(figsize=(6.5, 5))
     ax.plot(k["CD"], k["CL"], "ko-", lw=2, ms=4, label="XFOIL")
     for y in YONTEMLER:
-        ax.plot(k[f"CD_{y}"], k[f"CL_{y}"], "-", color=RENK[y], label=y)
+        ax.plot(k[f"CD_{y}"], k[f"CL_{y}"], "-", color=RENK[y], label=ETIKET[y])
     ax.set_xscale("log")
     ax.set_xlabel("CD (log)")
     ax.set_ylabel("CL")
-    ax.set_title(f"Sürükleme poları, test kanadı {kimlik}")
+    ax.set_title(f"Drag polar, test airfoil {kimlik}")
     ax.legend()
     ax.grid(alpha=0.3, which="both")
     fig.tight_layout()

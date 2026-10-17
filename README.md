@@ -102,7 +102,7 @@ A length scale is a sensitivity measure, not exactly an effect size. An input wi
 
 ## Plots
 
-All plots are produced by `src/grafikler.py` from the real XFOIL data and blind test predictions. Plot labels are in Turkish.
+All plots are produced by `src/grafikler.py` from the real XFOIL data and blind test predictions.
 
 `results/tasarim_uzayi.png`: where the training and blind test airfoils sit in the design space. Test airfoils are inside the same ranges but do not overlap the training points.
 
