@@ -162,7 +162,7 @@ Sonra sırasıyla:
 
 ```powershell
 python src\kurulum_kontrol.py    # NACA 2412, Re = 1e6, alfa = 5 derece: CL ≈ 0,81
-python src\geometri_kontrol.py   # kendi geometrimiz ile AeroSandbox karşılaştırması
+python src\geometri_kontrol.py   # üretilen geometri ile AeroSandbox karşılaştırması
 python src\buyukluk_kontrol.py   # NACA 0012 ve 2412 büyüklük kontrolleri
 python src\veri_uret.py          # data/egitim.csv, data/kor_test.csv (yaklaşık 3-4 dakika)
 python src\hazirlik.py           # sızıntı kontrolü

@@ -53,7 +53,7 @@ def tarama(kanat, Re, alfalar):
 
 
 def eslestir(sonuc, alfa):
-    # XFOIL açıyı yuvarlayarak yazar, küçük bir toleransla eşleştiriyoruz
+    # XFOIL açıyı yuvarlayarak yazar, bu yüzden küçük bir toleransla eşleştirilir
     yakin = np.abs(np.asarray(sonuc["alpha"]) - alfa) < 0.01
     if not yakin.any():
         return np.nan, np.nan

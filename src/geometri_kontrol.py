@@ -1,4 +1,4 @@
-"""Kendi NACA 2412 koordinatlarımızı AeroSandbox'ınkiyle karşılaştırır."""
+"""geometri.py ile üretilen NACA 2412 koordinatlarını AeroSandbox'ınkiyle karşılaştırır."""
 import aerosandbox as asb
 import numpy as np
 
@@ -13,16 +13,16 @@ def yuzeylere_ayir(koord):
     return ust, alt
 
 
-bizim = naca4(0.02, 0.4, 0.12)
+uretilen = naca4(0.02, 0.4, 0.12)
 referans = asb.Airfoil("naca2412").coordinates
 
-b_ust, b_alt = yuzeylere_ayir(bizim)
+b_ust, b_alt = yuzeylere_ayir(uretilen)
 r_ust, r_alt = yuzeylere_ayir(referans)
 
 x = np.linspace(0, 1, 400)
 fark_ust = np.abs(np.interp(x, b_ust[:, 0], b_ust[:, 1]) - np.interp(x, r_ust[:, 0], r_ust[:, 1]))
 fark_alt = np.abs(np.interp(x, b_alt[:, 0], b_alt[:, 1]) - np.interp(x, r_alt[:, 0], r_alt[:, 1]))
 
-print("nokta sayısı:", len(bizim), "| referans:", len(referans))
-print("ilk ve son nokta:", bizim[0], bizim[-1])
+print("nokta sayısı:", len(uretilen), "| referans:", len(referans))
+print("ilk ve son nokta:", uretilen[0], uretilen[-1])
 print(f"en büyük y farkı, üst: {fark_ust.max():.2e}  alt: {fark_alt.max():.2e}")
