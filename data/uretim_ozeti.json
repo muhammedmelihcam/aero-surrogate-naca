@@ -1,0 +1,25 @@
+{
+  "isci_sayisi": 18,
+  "egitim": {
+    "istenen": 2430,
+    "yakinsamayan": 132,
+    "cd_sifir_alti": 0,
+    "cl_mutlak_3_ustu": 0,
+    "elenen_toplam": 132,
+    "kalan": 2298,
+    "kanat_sayisi": 90,
+    "xfoil_nokta_basi_s": 0.6367992334567857,
+    "duvar_suresi_s": 96.84338640001079
+  },
+  "kor_test": {
+    "istenen": 675,
+    "yakinsamayan": 28,
+    "cd_sifir_alti": 0,
+    "cl_mutlak_3_ustu": 0,
+    "elenen_toplam": 28,
+    "kalan": 647,
+    "kanat_sayisi": 25,
+    "xfoil_nokta_basi_s": 0.5735349657777395,
+    "duvar_suresi_s": 90.62599929999851
+  }
+}
