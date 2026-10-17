@@ -94,9 +94,32 @@ XFOIL süresi, veri üretimi sırasında süreç başına ölçülen nokta baş�
 | log10(Re) | 2,04 | 1,98 |
 | alfa | **0,42** | **0,31** |
 
-Küçük uzunluk ölçeği, çıktının o girdiyle daha hızlı ve daha az doğrusal değiştiğini gösteriyor. CL'yi en çok etkileyen girdi açıkça hücum açısı. Geometri girdileri arasında kamber ve kalınlık, kamber konumundan daha etkili. Re en uzun ölçeğe sahip, yani bu aralıkta CL'yi en az etkileyen girdi. CD tarafında da açı başta, ardından kalınlık geliyor.
+Küçük uzunluk ölçeği, çıktının o girdiyle daha hızlı ve daha az doğrusal değiştiğini gösteriyor. İki çıktıda da açık ara en kısa ölçek hücum açısında. Geometri girdileri ve Re'nin ölçekleri 1'in üzerinde, yani etkileri bütün aralık boyunca düzgün.
 
-Uzunluk ölçeği bir duyarlılık ölçüsü ama tam olarak etki büyüklüğü değil. Bir girdinin etkisi büyük ama doğrusalsa, o girdi için de uzun bir ölçek öğrenilebilir. Örneğin kamberin CL'yi kaydırma etkisi büyük ama neredeyse doğrusal.
+Ama uzunluk ölçeği bir etki büyüklüğü değil. Etkisi büyük ama düzgün olan bir girdi de uzun bir ölçek alabilir. Aşağıdaki Sobol analizi etki büyüklüğünü doğrudan ölçüyor ve uzunluk ölçeklerini bir sıralama gibi okumanın birkaç yerde yanlış olacağını gösteriyor.
+
+### Sobol hassasiyet analizi
+
+`src/sobol.py` eğitilmiş GPR'ı bir Sobol dizisinden alınan 28.672 noktada çalıştırıyor (SALib, N = 4096) ve her çıktının varyansını girdilere paylaştırıyor. Girdiler tasarım aralıklarında düzgün dağılımlı kabul ediliyor (Re logaritmik, alfa −6° ile 20° arası). S1 bir girdinin tek başına payı, ST diğer girdilerle etkileşimleri de dahil toplam payı. Sonuçlar `results/sobol.csv` dosyasında, ± değerleri %95 güven aralığı.
+
+| Girdi | CL: S1 | CL: ST | log10(CD): S1 | log10(CD): ST |
+|---|---|---|---|---|
+| m | 0,076 ± 0,012 | 0,083 ± 0,004 | 0,001 ± 0,005 | 0,012 ± 0,001 |
+| p | 0,000 ± 0,002 | 0,003 ± 0,000 | 0,001 ± 0,004 | 0,008 ± 0,001 |
+| t | 0,001 ± 0,004 | 0,012 ± 0,002 | 0,005 ± 0,009 | 0,036 ± 0,004 |
+| log10(Re) | 0,004 ± 0,006 | 0,014 ± 0,002 | 0,051 ± 0,011 | 0,060 ± 0,004 |
+| alfa | 0,894 ± 0,036 | 0,916 ± 0,032 | 0,895 ± 0,039 | 0,937 ± 0,040 |
+
+![Sobol indeksleri ve GPR uzunluk ölçekleri](results/sobol.png)
+
+Ne gösteriyor:
+
+- **Hücum açısı iki çıktıda da baskın**, varyansın yaklaşık %90'ı ondan geliyor. Bu, uzunluk ölçekleriyle uyumlu.
+- **CL:** Kamber açık ara ikinci girdi (ST 0,083). Kalınlık, Re ve kamber konumu toplamda %3'ün altında kalıyor. Uzunluk ölçekleri kamber ve kalınlığı neredeyse aynı yere koyuyordu (1,40 ve 1,43), ama kamberin etkisi yaklaşık 7 kat büyük. Etkisi büyük ama neredeyse doğrusal: kamber CL eğrisini çoğunlukla yukarı kaydırıyor.
+- **log10(CD):** Re ikinci girdi (ST 0,060) ve kalınlığın (0,036) önünde. Oysa en uzun ölçek Re'deydi (1,98). Re arttıkça sürükleme düzgün biçimde azalıyor, yani etki büyük ama yavaş değişiyor.
+- **Etkileşimler:** S1 toplamı CL için 0,976, log10(CD) için 0,954. Varyansın büyük kısmı toplamsal. ST'nin S1'den belirgin büyük olduğu en net durum kalınlık (CL: 0,001'e karşı 0,012). Kalınlık CL'yi esas olarak açıyla etkileşim üzerinden, yani stall civarında etkiliyor.
+
+İki uyarı var. İndeksler seçilen girdi aralıklarına bağlı: açının baskın çıkmasının bir nedeni, aralığının (26°) geometri aralıklarına göre geniş olması. Ayrıca indeksler doğrudan XFOIL'i değil GPR vekil modelini anlatıyor, ama bu modelin kör test hatası küçük.
 
 ## Grafikler
 
@@ -168,6 +191,7 @@ python src\veri_uret.py          # data/egitim.csv, data/kor_test.csv (yaklaşı
 python src\hazirlik.py           # sızıntı kontrolü
 python src\degerlendir.py        # modeller ve kör test (yaklaşık 10 dakika)
 python src\grafikler.py          # results/*.png
+python src\sobol.py              # GPR üzerinde Sobol indeksleri (yaklaşık 1 dakika)
 ```
 
 Süreler kullanılan makineye göre değişir. XFOIL paralel koşuda çekirdek sayısının iki eksiği kadar süreç kullanır.

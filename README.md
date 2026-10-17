@@ -96,9 +96,32 @@ Learned values in the scaled [0, 1] input space (`results/gpr_uzunluk_olcekleri.
 | log10(Re) | 2.04 | 1.98 |
 | alfa | **0.42** | **0.31** |
 
-A short length scale means the output changes faster and less linearly with that input. Angle of attack is clearly the input that drives CL the most. Among the geometry inputs, camber and thickness matter more than camber position. Re has the longest scale, so within this range it affects CL the least. For CD, angle comes first again, followed by thickness.
+A short length scale means the output changes faster and less linearly with that input. Angle of attack has by far the shortest scale for both outputs. The geometry inputs and Re all have scales above 1, which means their effect is smooth across the whole range.
 
-A length scale is a sensitivity measure, not exactly an effect size. An input with a large but linear effect can still get a long length scale. Camber is an example: it shifts CL a lot, but almost linearly.
+A length scale is not an effect size, though. An input with a large but smooth effect can still get a long length scale. The Sobol analysis below measures effect size directly, and it shows that reading the length scales as a ranking would be wrong in a few places.
+
+### Sobol sensitivity analysis
+
+`src/sobol.py` runs the trained GPR on 28,672 points from a Sobol sequence (SALib, N = 4096) and splits the variance of each output among the inputs. Inputs are taken as uniform over the design ranges (Re log-uniform, alpha from −6° to 20°). S1 is the share of an input on its own, ST includes its interactions with the others. Results are in `results/sobol.csv`, ± values are 95% confidence intervals.
+
+| Input | CL: S1 | CL: ST | log10(CD): S1 | log10(CD): ST |
+|---|---|---|---|---|
+| m | 0.076 ± 0.012 | 0.083 ± 0.004 | 0.001 ± 0.005 | 0.012 ± 0.001 |
+| p | 0.000 ± 0.002 | 0.003 ± 0.000 | 0.001 ± 0.004 | 0.008 ± 0.001 |
+| t | 0.001 ± 0.004 | 0.012 ± 0.002 | 0.005 ± 0.009 | 0.036 ± 0.004 |
+| log10(Re) | 0.004 ± 0.006 | 0.014 ± 0.002 | 0.051 ± 0.011 | 0.060 ± 0.004 |
+| alpha | 0.894 ± 0.036 | 0.916 ± 0.032 | 0.895 ± 0.039 | 0.937 ± 0.040 |
+
+![Sobol indices and GPR length scales](results/sobol.png)
+
+What it shows:
+
+- **Angle of attack dominates both outputs** with about 90% of the variance. This matches the length scales.
+- **CL:** camber is clearly the second input (ST 0.083). Thickness, Re and camber position together stay under 3%. The length scales put camber and thickness at almost the same value (1.40 and 1.43), but camber's effect is about 7 times larger. Its effect is large but nearly linear: camber mostly shifts the CL curve up.
+- **log10(CD):** Re is the second input (ST 0.060), ahead of thickness (0.036), even though Re has the longest length scale (1.98). Drag falls smoothly as Re grows, so the effect is large but slow-changing.
+- **Interactions:** S1 sums to 0.976 for CL and 0.954 for log10(CD), so most of the variance is additive. Thickness is the clearest case where ST is much larger than S1 (CL: 0.001 vs 0.012). Thickness affects CL mainly through its interaction with angle, i.e. around stall.
+
+Two caveats. The indices depend on the chosen input ranges: alpha dominates partly because its range (26°) is wide compared to the geometry ranges. And they describe the GPR surrogate, not XFOIL directly, although the surrogate's blind test error is small.
 
 ## Plots
 
@@ -170,6 +193,7 @@ python src\veri_uret.py          # data/egitim.csv, data/kor_test.csv (about 3-4
 python src\hazirlik.py           # leakage check
 python src\degerlendir.py        # models and blind test (about 10 minutes)
 python src\grafikler.py          # results/*.png
+python src\sobol.py              # Sobol indices on the GPR (about 1 minute)
 ```
 
 Run times depend on the machine. The parallel XFOIL runs use the number of CPU cores minus two.
